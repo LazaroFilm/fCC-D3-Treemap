@@ -17,14 +17,15 @@ body {
 }
 
 rect {
-  fill: tomato;
-  opacity: 0.3;
+  /* fill: tomato; */
+  /* opacity: 10%; */
+  visibility: hidden;
   stroke: white;
 }
 
 .name {
   display: table-caption;
   font-family: "Helvetica Neue", Helvetica, sans-serif;
-  fill: white;
+  /* fill: white; */
   font-size: 10px;
 }

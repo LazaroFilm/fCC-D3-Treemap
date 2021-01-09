@@ -19,9 +19,29 @@ const canvas = d3 //
 
 const treemapLayout = d3.treemap();
 
-treemapLayout.size([width, height]).paddingOuter(20);
+treemapLayout.size([width, height]).paddingOuter(0).paddingInner(0);
 // const colors = ["#fa2600", "#ff3814", "#ff4d2e", "#ff6347", "#ff7961"];
 const colors = ["red", "green", "blue", "teal", "#ff7961"];
+const consoles = {
+  2600: "#072AC8",
+  Wii: "#1E96FC",
+  NES: "#A2D6F9",
+  GB: "#FCF300",
+  DS: "#FFC600",
+  X360: "#B48291",
+  PS3: "#A5243D",
+  PS2: "#D5E1A3",
+  SNES: "#E2F89C",
+  GBA: "#0CF574",
+  PS4: "#072AC8",
+  "3DS": "#1E96FC",
+  N64: "#A2D6F9",
+  PS: "#FCF300",
+  XB: "#B48291",
+  PC: "#A5243D",
+  PSP: "#A5243D",
+  XOne: "#D5E1A3",
+};
 
 const makeTreemap = (root) => {
   canvas //
@@ -38,6 +58,20 @@ const makeTreemap = (root) => {
         height: d.y1 - d.y0,
         class: "tile",
       };
+    })
+    // .style("fill", "#0000FF");
+    .style("fill", (d) => {
+      // console.log("D", d);\
+      return consoles[d.data.category];
+      if (d.data.category == "N64") {
+        return "#0000FF";
+      }
+    })
+    .style("visibility", (d) => {
+      // console.log("D", d);
+      if (d.data.category) {
+        return "visible";
+      }
     });
 
   const nodes = canvas //
@@ -65,11 +99,6 @@ const makeTreemap = (root) => {
     .attr("dx", 4)
     .attr("dy", 14)
     .attr("class", "name")
-    // .attrs({
-    //   dx: 4,
-    //   dy: 14,
-    //   class: "name",
-    // })
     .text((d) => {
       return d.data.name;
     });
@@ -78,15 +107,17 @@ const makeTreemap = (root) => {
 d3.json(videoGameSalesURL).then((data, error) => {
   if (error) console.log(error);
   else {
-    console.log(data);
     const root = d3.hierarchy(data);
     root.sum((d) => {
       return d.value;
     });
+    treemapLayout.tile(d3.treemapSquarify.ratio(1));
+
     treemapLayout(root);
     // console.log(data);
     // console.log("desc", root.descendants());
     // console.log("links", root.links());
+    console.log(root);
     makeTreemap(root);
   }
 });
