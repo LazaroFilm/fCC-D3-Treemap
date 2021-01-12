@@ -1,4 +1,4 @@
-console.log("Hello JS");
+// console.log("Hello JS");
 
 const kickstartePledgesURL =
   "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/kickstarter-funding-data.json";
@@ -12,7 +12,7 @@ let movieSales;
 let videoGameSales;
 
 const width = 900;
-const height = 600;
+const height = 500;
 
 const canvas = d3 //
   .select("#canvas");
@@ -47,7 +47,11 @@ const makeTreemap = (root) => {
   canvas //
     .attrs({ width, height })
     .selectAll("rect")
-    .data(root.descendants())
+    .data(
+      root.descendants().filter((d) => {
+        return d.data.category;
+      })
+    )
     .enter()
     .append("rect")
     .attrs((d) => {
@@ -57,18 +61,15 @@ const makeTreemap = (root) => {
         width: d.x1 - d.x0,
         height: d.y1 - d.y0,
         class: "tile",
+        "data-category": d.data.category,
+        "data-name": d.data.name,
+        "data-value": d.data.value,
       };
     })
-    // .style("fill", "#0000FF");
     .style("fill", (d) => {
-      // console.log("D", d);\
       return consoles[d.data.category];
-      if (d.data.category == "N64") {
-        return "#0000FF";
-      }
     })
     .style("visibility", (d) => {
-      // console.log("D", d);
       if (d.data.category) {
         return "visible";
       }
@@ -76,32 +77,82 @@ const makeTreemap = (root) => {
 
   const nodes = canvas //
     .selectAll("g")
-    .data(root.descendants())
+    .data(
+      root.descendants().filter((d) => {
+        return d.data.category;
+      })
+    )
     .enter()
     .append("g")
     .attr("transform", (d) => {
       return `translate(${[d.x0, d.y0]})`;
     });
 
-  nodes //
-    .append("rect")
-    .attrs({
-      width: (d) => {
-        return d.x1 - d.x0;
-      },
-      height: (d) => {
-        return d.y1 - d.y0;
-      },
-    });
+  // nodes //
+  //   .append("rect")
+  //   .attrs({
+  //     width: (d) => {
+  //       return d.x1 - d.x0;
+  //     },
+  //     height: (d) => {
+  //       return d.y1 - d.y0;
+  //     },
+  //     class: "nodes",
+  //   });
 
   nodes //
     .append("text")
-    .attr("dx", 4)
-    .attr("dy", 14)
-    .attr("class", "name")
+    .attrs({
+      dx: 4,
+      dy: 14,
+      class: "name",
+    })
+    // .attr("dx", 4)
+    // .attr("dy", 14)
+    // .attr("class", "name")
     .text((d) => {
       return d.data.name;
     });
+
+  const legend = d3 //
+    .select("#legend")
+    .attrs({ width: 80, height: 300 });
+
+  legend //
+    .selectAll(".legend-item")
+    .data(Object.keys(consoles))
+    .enter()
+    .append("rect")
+    .attrs({
+      x: 10,
+      y: (_, i) => {
+        return i * 15 + 5;
+      },
+      width: 10,
+      height: 10,
+      stroke: "black",
+      class: "legend-item",
+    })
+    .style("fill", (d) => {
+      // console.log(consoles[d]);
+      return consoles[d];
+    });
+
+  legend //
+    .selectAll(".legend-title")
+    .data(Object.keys(consoles))
+    .enter()
+    .append("text")
+    .attrs({
+      class: "legend-title",
+      x: 10,
+      y: (_, i) => {
+        return i * 15 + 5;
+      },
+      dx: 15,
+      dy: 10,
+    })
+    .text((d) => d);
 };
 
 d3.json(videoGameSalesURL).then((data, error) => {
@@ -114,10 +165,6 @@ d3.json(videoGameSalesURL).then((data, error) => {
     treemapLayout.tile(d3.treemapSquarify.ratio(1));
 
     treemapLayout(root);
-    // console.log(data);
-    // console.log("desc", root.descendants());
-    // console.log("links", root.links());
-    console.log(root);
     makeTreemap(root);
   }
 });

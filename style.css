@@ -1,6 +1,7 @@
 html,
 body {
   min-height: 100%;
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
 }
 
 body {
@@ -19,13 +20,17 @@ body {
 rect {
   /* fill: tomato; */
   /* opacity: 10%; */
-  visibility: hidden;
+  /* visibility: hidden; */
   stroke: white;
 }
 
 .name {
   display: table-caption;
-  font-family: "Helvetica Neue", Helvetica, sans-serif;
   /* fill: white; */
   font-size: 10px;
+}
+
+#legend {
+  background-color: aliceblue;
+  font-size: small;
 }
