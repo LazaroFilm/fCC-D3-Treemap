@@ -14,14 +14,12 @@ let videoGameSales;
 const width = 900;
 const height = 500;
 
-const canvas = d3 //
-  .select("#canvas");
-
 const treemapLayout = d3.treemap();
 
+console.log("foo", treemapLayout);
+
 treemapLayout.size([width, height]).paddingOuter(0).paddingInner(0);
-// const colors = ["#fa2600", "#ff3814", "#ff4d2e", "#ff6347", "#ff7961"];
-const colors = ["red", "green", "blue", "teal", "#ff7961"];
+
 const consoles = {
   2600: "#072AC8",
   Wii: "#1E96FC",
@@ -39,19 +37,18 @@ const consoles = {
   PS: "#FCF300",
   XB: "#B48291",
   PC: "#A5243D",
-  PSP: "#A5243D",
-  XOne: "#D5E1A3",
+  PSP: "#D5E1A3",
+  XOne: "#0CF574",
 };
 
 const makeTreemap = (root) => {
+  const canvas = d3 //
+    .select("#canvas");
+
   canvas //
     .attrs({ width, height })
     .selectAll("rect")
-    .data(
-      root.descendants().filter((d) => {
-        return d.data.category;
-      })
-    )
+    .data(root.leaves())
     .enter()
     .append("rect")
     .attrs((d) => {
@@ -75,43 +72,42 @@ const makeTreemap = (root) => {
       }
     });
 
-  const nodes = canvas //
+  canvas //
     .selectAll("g")
-    .data(
-      root.descendants().filter((d) => {
-        return d.data.category;
-      })
-    )
+    .data(root.leaves())
     .enter()
     .append("g")
     .attr("transform", (d) => {
       return `translate(${[d.x0, d.y0]})`;
-    });
-
-  // nodes //
-  //   .append("rect")
-  //   .attrs({
-  //     width: (d) => {
-  //       return d.x1 - d.x0;
-  //     },
-  //     height: (d) => {
-  //       return d.y1 - d.y0;
-  //     },
-  //     class: "nodes",
-  //   });
-
-  nodes //
+    })
     .append("text")
+    // .attrs({
+    //   dx: 4,
+    //   dy: 14,
+    //   class: "name",
+    // })
+    // .text((d) => {
+    //   return d.data.name;
+    // })
+    .selectAll("tspan")
+    .data(function (d) {
+      return d.data.name.split(/(?=[A-Z][^A-Z])/g);
+    })
+    .enter()
+    .append("tspan")
     .attrs({
-      dx: 4,
-      dy: 14,
+      x: 4,
+      y: (d, i) => {
+        return 13 + i * 10;
+      },
       class: "name",
     })
-    // .attr("dx", 4)
-    // .attr("dy", 14)
-    // .attr("class", "name")
-    .text((d) => {
-      return d.data.name;
+    // .attr("x", 4)
+    // .attr("y", function (d, i) {
+    //   return 13 + i * 10;
+    // })
+    .text(function (d) {
+      return d;
     });
 
   const legend = d3 //
