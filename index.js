@@ -12,11 +12,9 @@ let movieSales;
 let videoGameSales;
 
 const width = 900;
-const height = 500;
+const height = 600;
 
 const treemapLayout = d3.treemap();
-
-console.log("foo", treemapLayout);
 
 treemapLayout.size([width, height]).paddingOuter(0).paddingInner(0);
 
@@ -45,6 +43,14 @@ const makeTreemap = (root) => {
   const canvas = d3 //
     .select("#canvas");
 
+  const tooltip = d3 //
+    .select("#tooltip")
+    .append("div")
+    .attrs({
+      class: "tooltip",
+      id: "tooltip",
+    });
+
   canvas //
     .attrs({ width, height })
     .selectAll("rect")
@@ -70,6 +76,21 @@ const makeTreemap = (root) => {
       if (d.data.category) {
         return "visible";
       }
+    })
+    .on("mouseover", (d) => {
+      tooltip.transition().style("visibility", "visible");
+      const data = d.target["__data__"].data;
+      const name = data.name;
+      const value = data.value;
+      console.log(data, name, value);
+      tooltip
+        .attr("data-value", value)
+        .html(`name: ${name}/n value: ${value}`)
+        .style("left", d + "px")
+        .style("top", d + "px");
+    })
+    .on("mouseout", () => {
+      tooltip.transition().style("visibility", "hidden  ");
     });
 
   canvas //
@@ -102,10 +123,6 @@ const makeTreemap = (root) => {
       },
       class: "name",
     })
-    // .attr("x", 4)
-    // .attr("y", function (d, i) {
-    //   return 13 + i * 10;
-    // })
     .text(function (d) {
       return d;
     });
@@ -155,9 +172,13 @@ d3.json(videoGameSalesURL).then((data, error) => {
   if (error) console.log(error);
   else {
     const root = d3.hierarchy(data);
-    root.sum((d) => {
-      return d.value;
-    });
+    root //
+      .sum((d) => {
+        return d.value;
+      })
+      .sort(function (a, b) {
+        return b.height - a.height || b.value - a.value;
+      });
     treemapLayout.tile(d3.treemapSquarify.ratio(1));
 
     treemapLayout(root);
