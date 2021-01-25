@@ -12,25 +12,32 @@ body {
 }
 
 #canvas {
-  width: 100%;
-  height: 100%;
+  width: 90vw;
+  height: 80vh;
   /* background-color: aqua; */
 }
 
 rect {
-  /* fill: tomato; */
-  /* opacity: 10%; */
-  /* visibility: hidden; */
   stroke: white;
 }
 
 .name {
   display: table-caption;
-  /* fill: white; */
   font-size: 10px;
 }
 
 #legend {
-  background-color: aliceblue;
+  background-color: rgb(85, 119, 148);
   font-size: small;
+}
+
+svg {
+  display: inline-block;
+}
+
+#tooltip {
+  background-color: lightblue;
+  padding: 5px;
+  /* border: 1 px, solid; */
+  border: 1px, solid, black;
 }

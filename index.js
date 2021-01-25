@@ -12,14 +12,14 @@ let movieSales;
 let videoGameSales;
 
 const width = 900;
-const height = 600;
+const height = 800;
 
 const treemapLayout = d3.treemap();
 
 treemapLayout.size([width, height]).paddingOuter(0).paddingInner(0);
 
 const consoles = {
-  2600: "#072AC8",
+  2600: "#7657af",
   Wii: "#1E96FC",
   NES: "#A2D6F9",
   GB: "#FCF300",
@@ -29,7 +29,7 @@ const consoles = {
   PS2: "#D5E1A3",
   SNES: "#E2F89C",
   GBA: "#0CF574",
-  PS4: "#072AC8",
+  PS4: "#7657af",
   "3DS": "#1E96FC",
   N64: "#A2D6F9",
   PS: "#FCF300",
@@ -41,21 +41,47 @@ const consoles = {
 
 const makeTreemap = (root) => {
   const canvas = d3 //
-    .select("#canvas");
+    .select("#canvas")
+    .attr("viewBox", [0, 0, width, height]);
 
   const tooltip = d3 //
     .select("#tooltip")
-    .append("div")
-    .attrs({
-      class: "tooltip",
-      id: "tooltip",
-    });
+    .style("visibility", "hidden");
+  // .select("#canvas")
+  // .append("div")
+  // // .style("visibility", "hidden")
+  // .attrs({ id: "tooltip", class: "tooltip" });
+
+  const mouseover = (d) => {
+    // console.log(d.pageX, d.pageY);
+    tooltip //
+      .transition()
+      .style("visibility", "visible");
+  };
+
+  const mousemove = (d) => {
+    const data = d.target["__data__"].data;
+    console.log(`name: ${data.name} - value: ${data.value}`);
+    tooltip
+      .style("visibility", "visible")
+      .html(`name: ${data.name}<br>value: ${data.value}`)
+      .attr("data-value", data.value);
+    // .style("left", d.pageX + 10 + "px")
+    // .style("top", d.pageY - 28 + "px");
+  };
+
+  const mouseout = () => {
+    tooltip //
+      .transition()
+      .style("visibility", "hidden  ");
+  };
 
   canvas //
     .attrs({ width, height })
-    .selectAll("rect")
+    .selectAll(".tile")
     .data(root.leaves())
     .enter()
+    // TODO Separate this and append g instead.
     .append("rect")
     .attrs((d) => {
       return {
@@ -77,21 +103,9 @@ const makeTreemap = (root) => {
         return "visible";
       }
     })
-    .on("mouseover", (d) => {
-      tooltip.transition().style("visibility", "visible");
-      const data = d.target["__data__"].data;
-      const name = data.name;
-      const value = data.value;
-      console.log(data, name, value);
-      tooltip
-        .attr("data-value", value)
-        .html(`name: ${name}/n value: ${value}`)
-        .style("left", d + "px")
-        .style("top", d + "px");
-    })
-    .on("mouseout", () => {
-      tooltip.transition().style("visibility", "hidden  ");
-    });
+    .on("mouseover", mouseover)
+    .on("mousemove", mousemove)
+    .on("mouseout", mouseout);
 
   canvas //
     .selectAll("g")
@@ -102,14 +116,6 @@ const makeTreemap = (root) => {
       return `translate(${[d.x0, d.y0]})`;
     })
     .append("text")
-    // .attrs({
-    //   dx: 4,
-    //   dy: 14,
-    //   class: "name",
-    // })
-    // .text((d) => {
-    //   return d.data.name;
-    // })
     .selectAll("tspan")
     .data(function (d) {
       return d.data.name.split(/(?=[A-Z][^A-Z])/g);
@@ -128,16 +134,18 @@ const makeTreemap = (root) => {
     });
 
   const legend = d3 //
-    .select("#legend")
-    .attrs({ width: 80, height: 300 });
+    .select("#canvas")
+    .attrs({ x: 10, y: 20, width: 80, height: 300 })
+    .append("g")
+    .attr("id", "legend");
 
-  legend //
+  legend
     .selectAll(".legend-item")
     .data(Object.keys(consoles))
     .enter()
     .append("rect")
     .attrs({
-      x: 10,
+      x: 10 + width,
       y: (_, i) => {
         return i * 15 + 5;
       },
@@ -158,7 +166,7 @@ const makeTreemap = (root) => {
     .append("text")
     .attrs({
       class: "legend-title",
-      x: 10,
+      x: 10 + width,
       y: (_, i) => {
         return i * 15 + 5;
       },
